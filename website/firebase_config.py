@@ -1,20 +1,17 @@
-# website/firebase_config.py
 import json
 import os
-
 from firebase_admin import credentials, firestore, initialize_app
 
-
-
+# Load Firebase key from environment variable
 firebase_key_json = os.getenv('FIREBASE_KEY')
-firebase_key_dict = json.loads(firebase_key_json)
 if not firebase_key_json:
-    raise Exception("FIREBASE_KEY environment variable is not set.")
+    raise Exception("FIREBASE_KEY environment variable is not set. Make sure to set this in Render.")
 
-
-# Initialize Firebase using the Firebase Admin SDK private key JSON file
-cred = credentials.Certificate("firebase_key_dict")  # Update this path as needed
-initialize_app(cred)
-
-# Set up Firestore client
-db = firestore.client()
+try:
+    # Convert JSON string to dictionary and initialize Firebase
+    firebase_key_dict = json.loads(firebase_key_json)
+    cred = credentials.Certificate(firebase_key_dict)
+    initialize_app(cred)
+    db = firestore.client()
+except json.JSONDecodeError:
+    raise Exception("FIREBASE_KEY environment variable is not a valid JSON string.")
